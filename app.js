@@ -1,4 +1,5 @@
 // alert("Hello World");
+const parceled = true;
 gsap.registerPlugin(ScrollTrigger); // install ScrollTrigger plugin
 
 document.addEventListener("DOMContentLoaded", function () {
