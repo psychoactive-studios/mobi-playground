@@ -1,26 +1,25 @@
+const parceled = true;
+const currentPage = window.location.pathname;
+const homePage = currentPage == "/";
+const integrationsPage = currentPage == "/integrations";
+
 gsap.registerPlugin(ScrollTrigger);
 
 document.addEventListener("DOMContentLoaded", function () {
-  // const parceled = true;
-  // console.log(parceled);
-  // alert("we live baby");
-  const currentPage = window.location.pathname;
-  const homePage = currentPage == "/";
+  // alert("we local baby");
 
   if (homePage) loadAndInitCanvas("canvas");
   loadAndInitCanvas("footer_canvas");
 
   function loadAndInitCanvas(canvasID) {
     const images = [];
-    const frameCount = 200;
+    const frameCount = homePage ? 300 : 200;
     let imagesLoaded = 0;
 
     function handleImageLoad(img) {
       imagesLoaded++;
       if (imagesLoaded === frameCount) {
         initCanvas(canvasID, images);
-
-        // Add a console.log statement when all images are loaded
         console.log("All images are loaded for canvasID: " + canvasID);
       }
     }
@@ -31,17 +30,14 @@ document.addEventListener("DOMContentLoaded", function () {
       img.onload = handleImageLoad.bind(null, img);
       img.onerror = function () {
         console.error("Failed to load image:", img.src);
-        imagesLoaded++; // Increment imagesLoaded even in case of an error
+        imagesLoaded++;
         if (imagesLoaded === frameCount) {
           initCanvas(canvasID, images);
-
-          // Add a console.log statement when all images are loaded
           console.log("All images are loaded for canvasID: " + canvasID);
         } else {
-          // Retry the failed request after a brief delay (e.g., 2 seconds)
           setTimeout(function () {
             img.src = currentFrame(i, canvasID);
-          }, 1000); // 2000 milliseconds (2 seconds)
+          }, 1000);
         }
       };
       images.push(img);
@@ -63,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/mobile";
     } else {
       desktopBaseUrl =
-        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/desktop";
+        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05/desktop";
       mobileBaseUrl =
         "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/mobile";
     }
@@ -108,8 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     resizeCanvas();
-
-    // Add an event listener for the window's resize event
     window.addEventListener("resize", resizeCanvas);
 
     gsap.to(canvas, {
@@ -121,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
         start: "top bottom",
         end: "bottom bottom",
         scrub: 1,
-        //ease: "linear", // Set the easing to "linear"
+        //ease: "linear",
       },
     });
 
@@ -134,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
         start: "top bottom",
         end: "bottom bottom",
         scrub: 1,
-        //ease: "linear", // Set the easing to "linear"
+        //ease: "linear",
       },
       onUpdate: renderImage,
     });
@@ -195,6 +189,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
         context.drawImage(currentImage, x, y, drawnWidth, drawnHeight);
       }
+    }
+  }
+
+  // integrations category filter fix
+  if (integrationsPage) {
+    let lastItem;
+    const filterLinks = document.querySelectorAll(".category-filter");
+    const defaultIntro = document.querySelector("#default-intro");
+
+    categorySwitcher();
+
+    filterLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        setTimeout(() => {
+          categorySwitcher();
+        }, 100);
+      });
+    });
+
+    function categorySwitcher() {
+      const url = window.location.href;
+      const urlParams = new URLSearchParams(url.split("?")[1]);
+      const integrationCategory = urlParams.get("integration-category");
+      const showDefault = integrationCategory == null;
+      if (showDefault) {
+        defaultIntro.style.display = "block";
+        if (lastItem != undefined) {
+          document.querySelector(`#${lastItem}`).style.display = "none";
+          lastItem = undefined;
+        }
+      } else {
+        defaultIntro.style.display = "none";
+        const currentCategory = capitalizeFirstLetter(integrationCategory);
+        document.querySelector(`#${currentCategory}`).style.display = "block";
+
+        if (lastItem != currentCategory) {
+          if (lastItem != undefined) {
+            document.querySelector(`#${lastItem}`).style.display = "none";
+          }
+          lastItem = currentCategory;
+        }
+      }
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 });

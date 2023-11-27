@@ -575,63 +575,23 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 }
 
 },{}],"igcvL":[function(require,module,exports) {
-// function checkWindowSize() {
-// alert("local");
-// window.innerWidth > 992 && (document.body.classList.add("overflow-hidden"),
-window.addEventListener("load", ()=>{
-    console.log("window loaded");
-    // (document.querySelector(".loader_lottie-flicker").style.display = "none"),
-    document.querySelector(".loader_v1").style.display = "flex";
-    let e = document.getElementById("bgVideo1");
-    setTimeout(()=>{
-        console.log("play video 1");
-        e.play();
-    }, 2500);
-    console.log(e.paused);
-    // let e = document.getElementById("bgVideo1");
-    e.addEventListener("ended", ()=>{
-        console.log("video 1 ended");
-        // setTimeout(() => {
-        // console.log("6 seconds later");
-        document.querySelector(".loader_v1").style.display = "none";
-        // let e = document.querySelector(".loader");
-        // (e.style.position = "absolute"),
-        //   (e.style.top = "0"),
-        //   (e.style.right = "0"),
-        //   (e.style.zIndex = "-1");
-        let t = document.querySelector(".loader_v2");
-        t.style.display = "flex";
-        let i = document.getElementById("bgVideo2");
-        i.play();
-    // }, 3000);
-    // (i.loop = !0),
-    // setTimeout(() => {
-    //   t.style.transform = "translateX(10%)";
-    // }, 1e3),
-    // document.body.classList.remove("overflow-hidden");
-    });
-});
-// );
-// }
-// checkWindowSize(), window.addEventListener("resize", checkWindowSize);
+const parceled = true;
+const currentPage = window.location.pathname;
+const homePage = currentPage == "/";
+const integrationsPage = currentPage == "/integrations";
 gsap.registerPlugin(ScrollTrigger);
 document.addEventListener("DOMContentLoaded", function() {
-    // const parceled = true;
-    // console.log(parceled);
-    // alert("we live baby");
-    const currentPage = window.location.pathname;
-    const homePage = currentPage == "/";
+    // alert("we local baby");
     if (homePage) loadAndInitCanvas("canvas");
     loadAndInitCanvas("footer_canvas");
     function loadAndInitCanvas(canvasID) {
         const images = [];
-        const frameCount = 200;
+        const frameCount = homePage ? 300 : 200;
         let imagesLoaded = 0;
         function handleImageLoad(img) {
             imagesLoaded++;
             if (imagesLoaded === frameCount) {
                 initCanvas(canvasID, images);
-                // Add a console.log statement when all images are loaded
                 console.log("All images are loaded for canvasID: " + canvasID);
             }
         }
@@ -641,15 +601,13 @@ document.addEventListener("DOMContentLoaded", function() {
             img.onload = handleImageLoad.bind(null, img);
             img.onerror = function() {
                 console.error("Failed to load image:", img.src);
-                imagesLoaded++; // Increment imagesLoaded even in case of an error
+                imagesLoaded++;
                 if (imagesLoaded === frameCount) {
                     initCanvas(canvasID, images);
-                    // Add a console.log statement when all images are loaded
                     console.log("All images are loaded for canvasID: " + canvasID);
-                } else // Retry the failed request after a brief delay (e.g., 2 seconds)
-                setTimeout(function() {
+                } else setTimeout(function() {
                     img.src = currentFrame(i, canvasID);
-                }, 1000); // 2000 milliseconds (2 seconds)
+                }, 1000);
             };
             images.push(img);
         }
@@ -665,7 +623,7 @@ document.addEventListener("DOMContentLoaded", function() {
             desktopBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/desktop";
             mobileBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/mobile";
         } else {
-            desktopBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/desktop";
+            desktopBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05/desktop";
             mobileBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/mobile";
         }
         if (screenWidth < breakpoint) baseUrl = mobileBaseUrl;
@@ -692,7 +650,6 @@ document.addEventListener("DOMContentLoaded", function() {
             ScrollTrigger.refresh();
         }
         resizeCanvas();
-        // Add an event listener for the window's resize event
         window.addEventListener("resize", resizeCanvas);
         gsap.to(canvas, {
             width: "100%",
@@ -765,6 +722,44 @@ document.addEventListener("DOMContentLoaded", function() {
                 const y = 0;
                 context.drawImage(currentImage, x, y, drawnWidth, drawnHeight);
             }
+        }
+    }
+    // integrations category filter fix
+    if (integrationsPage) {
+        let lastItem;
+        const filterLinks = document.querySelectorAll(".category-filter");
+        const defaultIntro = document.querySelector("#default-intro");
+        categorySwitcher();
+        filterLinks.forEach((link)=>{
+            link.addEventListener("click", ()=>{
+                setTimeout(()=>{
+                    categorySwitcher();
+                }, 100);
+            });
+        });
+        function categorySwitcher() {
+            const url = window.location.href;
+            const urlParams = new URLSearchParams(url.split("?")[1]);
+            const integrationCategory = urlParams.get("integration-category");
+            const showDefault = integrationCategory == null;
+            if (showDefault) {
+                defaultIntro.style.display = "block";
+                if (lastItem != undefined) {
+                    document.querySelector(`#${lastItem}`).style.display = "none";
+                    lastItem = undefined;
+                }
+            } else {
+                defaultIntro.style.display = "none";
+                const currentCategory = capitalizeFirstLetter(integrationCategory);
+                document.querySelector(`#${currentCategory}`).style.display = "block";
+                if (lastItem != currentCategory) {
+                    if (lastItem != undefined) document.querySelector(`#${lastItem}`).style.display = "none";
+                    lastItem = currentCategory;
+                }
+            }
+        }
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
         }
     }
 });
