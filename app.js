@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // integrations category filter fix
+  console.log(integrationsPage);
   if (integrationsPage) {
     let lastItem;
     const filterLinks = document.querySelectorAll(".category-filter");
