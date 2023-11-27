@@ -193,7 +193,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // integrations category filter fix
-  console.log(integrationsPage);
   if (integrationsPage) {
     let lastItem;
     const filterLinks = document.querySelectorAll(".category-filter");
@@ -214,20 +213,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const urlParams = new URLSearchParams(url.split("?")[1]);
       const integrationCategory = urlParams.get("integration-category");
       const showDefault = integrationCategory == null;
+
       if (showDefault) {
-        defaultIntro.style.display = "block";
+        displaySwap(defaultIntro, "block", true);
         if (lastItem != undefined) {
-          document.querySelector(`#${lastItem}`).style.display = "none";
+          displaySwap(lastItem, "none");
           lastItem = undefined;
         }
       } else {
-        defaultIntro.style.display = "none";
         const currentCategory = capitalizeFirstLetter(integrationCategory);
-        document.querySelector(`#${currentCategory}`).style.display = "block";
+        displaySwap(defaultIntro, "none", true);
+        displaySwap(currentCategory, "block");
 
         if (lastItem != currentCategory) {
           if (lastItem != undefined) {
-            document.querySelector(`#${lastItem}`).style.display = "none";
+            displaySwap(lastItem, "none");
           }
           lastItem = currentCategory;
         }
@@ -235,7 +235,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
+      if (string == "pos") {
+        return string.toUpperCase();
+      } else {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+    }
+
+    function displaySwap(id, displayState, isDefault) {
+      if (isDefault) {
+        defaultIntro.style.display = displayState;
+      } else {
+        document.querySelector(`#${id}`).style.display = displayState;
+      }
     }
   }
 });
