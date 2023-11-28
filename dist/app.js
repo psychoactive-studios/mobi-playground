@@ -585,8 +585,9 @@ document.addEventListener("DOMContentLoaded", function() {
     if (homePage) loadAndInitCanvas("canvas");
     loadAndInitCanvas("footer_canvas");
     function loadAndInitCanvas(canvasID) {
+        const isFooter = canvasID === "footer_canvas";
         const images = [];
-        const frameCount = homePage ? 300 : 200;
+        const frameCount = isFooter ? 200 : 300;
         let imagesLoaded = 0;
         function handleImageLoad(img) {
             imagesLoaded++;
@@ -613,22 +614,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     function currentFrame(index, canvasID) {
-        const screenWidth = window.innerWidth;
-        const isFooter = canvasID === "footer_canvas";
-        let desktopBaseUrl;
-        let mobileBaseUrl;
         let baseUrl;
-        const breakpoint = 991;
-        if (isFooter) {
-            desktopBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/desktop";
-            mobileBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/mobile";
-        } else {
-            desktopBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05/desktop";
-            mobileBaseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/mobile";
-        }
-        if (screenWidth < breakpoint) baseUrl = mobileBaseUrl;
-        else baseUrl = desktopBaseUrl;
-        const frameUrl = `${baseUrl}/MOBI_${isFooter ? "Footer" : "RollingBall_viewport"}_${screenWidth < breakpoint ? "9-16" : "16-9"}_${index.toString().padStart(5, "0")}.jpg`;
+        const isFooter = canvasID === "footer_canvas";
+        if (isFooter) baseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/desktop";
+        else baseUrl = "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05";
+        const frameUrl = `${baseUrl}/MOBI_${isFooter ? "Footer" : "RollingBall_viewport"}_16-9_${index.toString().padStart(5, "0")}.jpg`;
         return frameUrl;
     }
     function initCanvas(canvasID, images) {
@@ -636,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const canvas = document.querySelector(`#${canvasID}`);
         const context = canvas.getContext("2d");
         const triggerElement = isFooter ? document.querySelector(".scrub-wrapper-footer") : document.querySelector(".scrub-wrapper");
-        const frameCount = 200;
+        const frameCount = isFooter ? 200 : 300;
         const airpods = {
             frame: 0
         };
@@ -659,7 +649,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 trigger: triggerElement,
                 start: "top bottom",
                 end: "bottom bottom",
-                scrub: 1
+                scrub: 0.5,
+                normalizeScroll: true
             }
         });
         gsap.to(airpods, {
@@ -670,7 +661,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 trigger: triggerElement,
                 start: "top bottom",
                 end: "bottom bottom",
-                scrub: 1
+                scrub: 2,
+                normalizeScroll: true
             },
             onUpdate: renderImage
         });
@@ -765,6 +757,34 @@ document.addEventListener("DOMContentLoaded", function() {
         function displaySwap(id, displayState, isDefault) {
             if (isDefault) defaultIntro.style.display = displayState;
             else document.querySelector(`#${id}`).style.display = displayState;
+        }
+    }
+    // PRELOADER VIDEO SWAP CODE
+    if (homePage) {
+        window.addEventListener("load", ()=>{
+            document.querySelector(".loader_v1").style.display = "flex";
+            const video1 = document.getElementById("bgVideo1");
+            const video2 = document.getElementById("bgVideo2");
+            setTimeout(()=>{
+                mobileChecker(video1, video2);
+                video1.currentTime = 0;
+                video1.play();
+            }, 2500);
+            video1.addEventListener("ended", ()=>{
+                document.querySelector(".loader_v1").style.display = "none";
+                document.querySelector(".loader_v2").style.display = "flex";
+                video2.play();
+                console.log(video2.src);
+            });
+        });
+        function mobileChecker(video1, video2) {
+            const screenWidth = window.innerWidth;
+            const breakpoint = 991;
+            if (screenWidth < breakpoint) {
+                console.log("change source");
+                video1.src = "https://general-client-assets.sfo3.cdn.digitaloceanspaces.com/MOBI/Home/Home_Hero_Video/mobile/MOBI_BG_9-16_v01.mp4";
+                video2.src = "https://general-client-assets.sfo3.cdn.digitaloceanspaces.com/MOBI/Home/Home_Hero_Video/mobile/MOBI_BG_LOOP_9-16_v01.mp4";
+            }
         }
     }
 });

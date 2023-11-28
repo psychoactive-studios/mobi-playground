@@ -12,9 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   loadAndInitCanvas("footer_canvas");
 
   function loadAndInitCanvas(canvasID) {
-    const isFooter = canvasID === "footer_canvas";
     const images = [];
-    const frameCount = isFooter ? 200 : 300;
+    const frameCount = homePage ? 300 : 200;
     let imagesLoaded = 0;
 
     function handleImageLoad(img) {
@@ -46,19 +45,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function currentFrame(index, canvasID) {
-    let baseUrl;
+    const screenWidth = window.innerWidth;
     const isFooter = canvasID === "footer_canvas";
+    let desktopBaseUrl;
+    let mobileBaseUrl;
+    let baseUrl;
+    const breakpoint = 991;
 
     if (isFooter) {
-      baseUrl =
+      desktopBaseUrl =
         "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/desktop";
+      mobileBaseUrl =
+        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Footer/v02/mobile";
     } else {
-      baseUrl =
-        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05";
+      desktopBaseUrl =
+        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v05/desktop";
+      mobileBaseUrl =
+        "https://general-client-assets.sfo3.digitaloceanspaces.com/MOBI/Home/Rolling_Ball/v04/mobile";
     }
+
+    if (screenWidth < breakpoint) {
+      baseUrl = mobileBaseUrl;
+    } else {
+      baseUrl = desktopBaseUrl;
+    }
+
     const frameUrl = `${baseUrl}/MOBI_${
       isFooter ? "Footer" : "RollingBall_viewport"
-    }_16-9_${index.toString().padStart(5, "0")}.jpg`;
+    }_${screenWidth < breakpoint ? "9-16" : "16-9"}_${index
+      .toString()
+      .padStart(5, "0")}.jpg`;
 
     return frameUrl;
   }
@@ -70,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const triggerElement = isFooter
       ? document.querySelector(".scrub-wrapper-footer")
       : document.querySelector(".scrub-wrapper");
-    const frameCount = isFooter ? 200 : 300;
+    const frameCount = 200;
     const airpods = {
       frame: 0,
     };
@@ -98,9 +114,8 @@ document.addEventListener("DOMContentLoaded", function () {
         trigger: triggerElement,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: 0.5,
-        normalizeScroll: true, // Enable scroll normalization
-        // ease: "linear",
+        scrub: 1,
+        //ease: "linear",
       },
     });
 
@@ -112,9 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
         trigger: triggerElement,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: 2,
-        normalizeScroll: true, // Enable scroll normalization
-        // ease: "linear",
+        scrub: 1,
+        //ease: "linear",
       },
       onUpdate: renderImage,
     });
@@ -233,40 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
         defaultIntro.style.display = displayState;
       } else {
         document.querySelector(`#${id}`).style.display = displayState;
-      }
-    }
-  }
-
-  // PRELOADER VIDEO SWAP CODE
-  if (homePage) {
-    window.addEventListener("load", () => {
-      document.querySelector(".loader_v1").style.display = "flex";
-      const video1 = document.getElementById("bgVideo1");
-      const video2 = document.getElementById("bgVideo2");
-
-      setTimeout(() => {
-        mobileChecker(video1, video2);
-        video1.currentTime = 0;
-        video1.play();
-      }, 2500);
-
-      video1.addEventListener("ended", () => {
-        document.querySelector(".loader_v1").style.display = "none";
-        document.querySelector(".loader_v2").style.display = "flex";
-        video2.play();
-        console.log(video2.src);
-      });
-    });
-
-    function mobileChecker(video1, video2) {
-      const screenWidth = window.innerWidth;
-      const breakpoint = 991;
-      if (screenWidth < breakpoint) {
-        console.log("change source");
-        video1.src =
-          "https://general-client-assets.sfo3.cdn.digitaloceanspaces.com/MOBI/Home/Home_Hero_Video/mobile/MOBI_BG_9-16_v01.mp4";
-        video2.src =
-          "https://general-client-assets.sfo3.cdn.digitaloceanspaces.com/MOBI/Home/Home_Hero_Video/mobile/MOBI_BG_LOOP_9-16_v01.mp4";
       }
     }
   }
